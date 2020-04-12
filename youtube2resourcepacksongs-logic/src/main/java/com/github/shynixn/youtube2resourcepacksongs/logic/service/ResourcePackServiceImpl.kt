@@ -4,6 +4,7 @@ package com.github.shynixn.youtube2resourcepacksongs.logic.service
 
 import com.github.shynixn.youtube2resourcepacksongs.api.entity.Progress
 import com.github.shynixn.youtube2resourcepacksongs.api.entity.Video
+import com.github.shynixn.youtube2resourcepacksongs.logic.contract.FFmpegService
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.ResourcePackService
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.YoutubeVideoDownloadService
 import org.apache.commons.io.FileUtils
@@ -38,7 +39,10 @@ import java.nio.file.Paths
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-class ResourcePackServiceImpl(private val youtubeVideoDownloadService: YoutubeVideoDownloadService = YoutubeVideoDownloadServiceImpl()) :
+class ResourcePackServiceImpl(
+    private val youtubeVideoDownloadService: YoutubeVideoDownloadService = YoutubeVideoDownloadServiceImpl(),
+    private val fFmpegService: FFmpegService = FfmpegServiceImpl()
+) :
     ResourcePackService {
     /**
      * Generates a resource pack.
@@ -56,7 +60,9 @@ class ResourcePackServiceImpl(private val youtubeVideoDownloadService: YoutubeVi
         }
 
         for (file in songsFolder.toFile().listFiles()!!) {
-            println("Convert " + file)
+            val oggFile = file.toPath().parent.resolve(file.nameWithoutExtension + ".ogg")
+            Files.deleteIfExists(oggFile)
+            fFmpegService.convertToOgg(file.toPath(), progressF)
         }
     }
 }
