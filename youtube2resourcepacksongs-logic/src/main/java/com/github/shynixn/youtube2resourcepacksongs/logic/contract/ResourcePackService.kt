@@ -34,5 +34,5 @@ interface ResourcePackService {
     /**
      * Generates a resource pack.
      */
-    fun generateResourcePack(videos: Collection<Video>, outputFile: Path)
+    fun generateResourcePack(videos: Collection<Video>, outputFile: Path, progressFunction : Any)
 }

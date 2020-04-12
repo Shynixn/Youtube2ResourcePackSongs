@@ -1,9 +1,15 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.github.shynixn.youtube2resourcepacksongs.logic.service
 
+import com.github.shynixn.youtube2resourcepacksongs.api.entity.Progress
 import com.github.shynixn.youtube2resourcepacksongs.api.entity.Video
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.ResourcePackService
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.YoutubeVideoDownloadService
+import org.apache.commons.io.FileUtils
+import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  * Created by Shynixn 2020.
@@ -37,9 +43,20 @@ class ResourcePackServiceImpl(private val youtubeVideoDownloadService: YoutubeVi
     /**
      * Generates a resource pack.
      */
-    override fun generateResourcePack(videos: Collection<Video>, outputFile: Path) {
+    override fun generateResourcePack(videos: Collection<Video>, outputFile: Path, progressFunction: Any) {
+        val songsFolder = Paths.get("songs")
+        val progressF = progressFunction as ((Progress) -> Unit)
+
+        if (!Files.exists(songsFolder)) {
+            Files.createDirectories(songsFolder)
+        }
+
         for (video in videos) {
-            youtubeVideoDownloadService.download(video.videoUrl, video.videoPathInResourcePack.split("/").last())
+            youtubeVideoDownloadService.download(video, songsFolder, progressF)
+        }
+
+        for (file in songsFolder.toFile().listFiles()!!) {
+            println("Convert " + file)
         }
     }
 }

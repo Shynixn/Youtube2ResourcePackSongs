@@ -1,8 +1,12 @@
 package com.github.shynixn.youtube2resourcepacksongs.logic.service
 
+import com.github.kiulian.downloader.OnYoutubeDownloadListener
 import com.github.kiulian.downloader.YoutubeDownloader
+import com.github.shynixn.youtube2resourcepacksongs.api.entity.Progress
+import com.github.shynixn.youtube2resourcepacksongs.api.entity.Video
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.YoutubeVideoDownloadService
 import org.apache.commons.io.FileUtils
+import java.io.File
 import java.lang.StringBuilder
 import java.nio.file.Files
 import java.nio.file.Path
@@ -40,7 +44,8 @@ class YoutubeVideoDownloadServiceImpl : YoutubeVideoDownloadService {
     /**
      * Downloads the given videoUrl.
      */
-    override fun download(videoUrl: String, name: String): Path {
+    override fun download(video: Video, targetFolder: Path, progressFunction: (Progress) -> Unit) {
+        val name = video.videoPathInResourcePack.split("/").last()
         val currentFolder = Paths.get("")
         val downloadFolder = currentFolder.resolve("download-" + UUID.randomUUID().toString().split("-").first())
 
@@ -49,14 +54,34 @@ class YoutubeVideoDownloadServiceImpl : YoutubeVideoDownloadService {
         }
 
         Files.createDirectories(downloadFolder)
-        val downloadFile = downloadFolder.resolve("$name.mp4")
+        val downloadFile = targetFolder.resolve("$name.mp4")
+        Files.deleteIfExists(downloadFile)
 
-        val youtubeId = getYoutubeId(videoUrl)
-        val v = YoutubeDownloader();
-        val video = v.getVideo(youtubeId)
-        video.download(video.audioFormats()[0], downloadFolder.toFile())
+        val youtubeId = getYoutubeId(video.videoUrl)
+        val v = YoutubeDownloader()
+        val ytVideo = v.getVideo(youtubeId)
+        var hasFinished = false
+        ytVideo.downloadAsync(ytVideo.audioFormats()[0], downloadFolder.toFile(), object : OnYoutubeDownloadListener {
+            override fun onDownloading(progress: Int) {
+                progressFunction.invoke(Progress(progress, "Downloading '" + name + "' from " + video.videoUrl + "..."))
+            }
+
+            override fun onFinished(file: File?) {
+                hasFinished = true
+                progressFunction.invoke(Progress(100, "Downloaded '" + name + "' from " + video.videoUrl + "."))
+            }
+
+            override fun onError(throwable: Throwable?) {
+                hasFinished = true
+            }
+        })
+
+        while (!hasFinished) {
+            Thread.sleep(500)
+        }
+
         FileUtils.moveFile(downloadFolder.toFile().listFiles()!!.first(), downloadFile.toFile())
-        return downloadFile
+        FileUtils.deleteDirectory(downloadFolder.toFile())
     }
 
     /**

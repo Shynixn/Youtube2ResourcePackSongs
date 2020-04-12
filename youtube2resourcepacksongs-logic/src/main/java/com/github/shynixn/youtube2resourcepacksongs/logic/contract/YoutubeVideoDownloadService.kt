@@ -1,5 +1,7 @@
 package com.github.shynixn.youtube2resourcepacksongs.logic.contract
 
+import com.github.shynixn.youtube2resourcepacksongs.api.entity.Progress
+import com.github.shynixn.youtube2resourcepacksongs.api.entity.Video
 import java.nio.file.Path
 
 /**
@@ -31,7 +33,7 @@ import java.nio.file.Path
  */
 interface YoutubeVideoDownloadService {
     /**
-     * Downloads the given videoUrl.
+     * Downloads the given video.
      */
-    fun download(videoUrl: String, name: String): Path
+    fun download(video: Video, targetFolder: Path, progressFunction: (Progress) -> Unit)
 }

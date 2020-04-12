@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import kotlinx.coroutines.*
 import java.nio.file.Path
+import kotlin.reflect.KFunction
 
 /**
  * API to convert videos to resource packs.
@@ -100,9 +101,10 @@ object Youtube2ResourcePackSongsApi {
         resourcePackService.javaClass.getDeclaredMethod(
             "generateResourcePack",
             Collection::class.java,
-            Path::class.java
+            Path::class.java,
+            Any::class.java
         )
-            .invoke(resourcePackService, videos, outputFile.toPath())
+            .invoke(resourcePackService, videos, outputFile.toPath(), progress)
         progress.invoke(Progress(100, "Finished generating resource pack."))
     }
 
