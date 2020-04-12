@@ -97,6 +97,10 @@ class FfmpegServiceImpl : FFmpegService {
                 convertInputToOutPut(ffmFolder, outPutPathMp3, outPutPathOgg, progressFunction)
                 success = true
                 Files.writeString(ffmpegRootFolder.resolve("os.dat"), architecture.identififer)
+
+                for (file in ffmpegRootFolder.toFile().listFiles()!!.filter { e -> e.name != architecture.identififer && e.name != "os.dat" }) {
+                    FileUtils.deleteDirectory(file)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }

@@ -59,7 +59,7 @@ class ResourcePackServiceImpl(
             youtubeVideoDownloadService.download(video, songsFolder, progressF)
         }
 
-        for (file in songsFolder.toFile().listFiles()!!) {
+        for (file in songsFolder.toFile().listFiles()!!.filter { e -> e.name.endsWith(".mp4") }) {
             val oggFile = file.toPath().parent.resolve(file.nameWithoutExtension + ".ogg")
             Files.deleteIfExists(oggFile)
             fFmpegService.convertToOgg(file.toPath(), progressF)
