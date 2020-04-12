@@ -25,6 +25,7 @@ repositories {
     mavenCentral()
     mavenLocal()
     jcenter()
+    maven { url 'https://jitpack.io' }
 }
 
 nexusStaging {
@@ -151,6 +152,7 @@ subprojects {
         mavenCentral()
         mavenLocal()
         jcenter()
+        maven { url 'https://jitpack.io' }
     }
 
     dependencies {

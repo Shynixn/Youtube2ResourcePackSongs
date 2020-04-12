@@ -1,3 +1,4 @@
 rootProject.name = 'youtube2resourcepacksongs-root'
 include 'youtube2resourcepacksongs-api'
+include 'youtube2resourcepacksongs-logic'
 include 'youtube2resourcepacksongs-gui'

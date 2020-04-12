@@ -45,7 +45,7 @@ fun main(args: Array<String>) {
     options.addOption(Option("hl", "headless", false, "Runs the program headless."))
     options.addOption(Option("ifile", "inputfile", true, "Input csv file path"))
     options.addOption(Option("ofile", "outputfile", true, "Output resourcepack zip file path."))
-    options.addOption(Option("i", "immediately", true, "Runs the program immediately."))
+    options.addOption(Option("i", "immediately", false, "Runs the program immediately."))
 
     val parser: CommandLineParser = DefaultParser()
 

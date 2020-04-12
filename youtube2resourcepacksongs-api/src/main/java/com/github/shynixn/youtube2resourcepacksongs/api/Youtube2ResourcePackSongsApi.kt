@@ -1,4 +1,4 @@
-@file:Suppress("DuplicatedCode")
+@file:Suppress("DuplicatedCode", "UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
 
 package com.github.shynixn.youtube2resourcepacksongs.api
 
@@ -8,6 +8,7 @@ import java.io.File
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import kotlinx.coroutines.*
+import java.nio.file.Path
 
 /**
  * API to convert videos to resource packs.
@@ -37,6 +38,16 @@ import kotlinx.coroutines.*
  * SOFTWARE.
  */
 object Youtube2ResourcePackSongsApi {
+    private val csvFileService =
+        Class.forName("com.github.shynixn.youtube2resourcepacksongs.logic.service.CsvFileServiceImpl")
+            .getDeclaredConstructor()
+            .newInstance()
+
+    private val resourcePackService =
+        Class.forName("com.github.shynixn.youtube2resourcepacksongs.logic.service.ResourcePackServiceImpl")
+            .getDeclaredConstructor()
+            .newInstance()
+
     /**
      * Converts the given [inputFile] to a new resource pack at the given [outputFile].
      * Overrides the output file if it already exists. Blocks the calling thread until finished.
@@ -45,7 +56,11 @@ object Youtube2ResourcePackSongsApi {
      * @param progress progress CallBack on the same thread which gives info of the current progress.
      */
     fun convert(inputFile: File, outputFile: File, progress: (Progress) -> Unit) {
-
+        progress.invoke(Progress(0, "Parsing input file..."))
+        val videos = csvFileService.javaClass.getDeclaredMethod("parseFile", Path::class.java)
+            .invoke(csvFileService, inputFile.toPath()) as Collection<Video>
+        progress.invoke(Progress(0, "Finished parsing input file."))
+        convert(videos, outputFile, progress)
     }
 
     /**
@@ -81,7 +96,14 @@ object Youtube2ResourcePackSongsApi {
      * @param progress progress CallBack on the same thread which gives info of the current progress.
      */
     fun convert(videos: Collection<Video>, outputFile: File, progress: (Progress) -> Unit) {
-
+        progress.invoke(Progress(0, "Generating resource pack..."))
+        resourcePackService.javaClass.getDeclaredMethod(
+            "generateResourcePack",
+            Collection::class.java,
+            Path::class.java
+        )
+            .invoke(resourcePackService, videos, outputFile.toPath())
+        progress.invoke(Progress(100, "Finished generating resource pack."))
     }
 
     /**
@@ -92,7 +114,11 @@ object Youtube2ResourcePackSongsApi {
      * @param progress progress CallBack on the same thread which gives info of the current progress.
      * @return CompletionStage which completes with a null object when completed.
      */
-    fun convertAsync(videos: Collection<Video>, outputFile: File, progress: (Progress) -> Unit): CompletionStage<Void?> {
+    fun convertAsync(
+        videos: Collection<Video>,
+        outputFile: File,
+        progress: (Progress) -> Unit
+    ): CompletionStage<Void?> {
         val completeAble = CompletableFuture<Void?>()
 
         GlobalScope.launch {
