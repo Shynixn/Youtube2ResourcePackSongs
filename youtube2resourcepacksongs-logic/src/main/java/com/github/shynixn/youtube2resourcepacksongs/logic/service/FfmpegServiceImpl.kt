@@ -102,7 +102,6 @@ class FfmpegServiceImpl : FFmpegService {
                     FileUtils.deleteDirectory(file)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
             }
             i++
         }
