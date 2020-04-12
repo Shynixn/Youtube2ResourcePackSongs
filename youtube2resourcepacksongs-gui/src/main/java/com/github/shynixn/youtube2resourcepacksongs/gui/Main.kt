@@ -1,4 +1,4 @@
-@file:Suppress("DuplicatedCode")
+@file:Suppress("DuplicatedCode", "UNNECESSARY_SAFE_CALL")
 
 package com.github.shynixn.youtube2resourcepacksongs.gui
 
@@ -96,11 +96,19 @@ fun main(args: Array<String>) {
     }
 
     if (cmd.hasOption("i")) {
+        gui?.buttonStart!!.isEnabled = false
         Youtube2ResourcePackSongsApi.convertAsync(
             configuration.inputFilePath.toFile(),
             configuration.outputFilePath.toFile()
         ) { progress ->
             gui?.updateProgress(progress)
+        }.exceptionally { e ->
+            gui?.setProgressMessage(e.message!!)
+            gui?.buttonStart!!.isEnabled = true
+            println(e)
+            null
+        }.thenAccept {
+            gui?.buttonStart!!.isEnabled = true
         }
     }
 }

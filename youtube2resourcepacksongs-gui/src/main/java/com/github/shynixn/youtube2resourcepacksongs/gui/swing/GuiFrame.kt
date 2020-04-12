@@ -181,7 +181,7 @@ internal class GuiFrame(
     // Variables declaration - do not modify
     private var buttonInputSelect: JButton? = null
     private var buttonOutputSelect: JButton? = null
-    private var buttonStart: JButton? = null
+    var buttonStart: JButton? = null
     private var jLabel1: JLabel? = null
     private var progressBarMain: JProgressBar? = null
     private var progressBarMainMessage: JLabel? = null
@@ -225,15 +225,30 @@ internal class GuiFrame(
         }
         buttonStart!!.addActionListener {
             try {
+                this.buttonStart!!.isEnabled = false
                 val inputPath = Paths.get(this.textFieldInputCsv!!.text)
                 val outputPath = Paths.get(this.textFieldOutputResourcePack!!.text)
                 Youtube2ResourcePackSongsApi.convertAsync(inputPath.toFile(), outputPath.toFile()) { progress ->
                     updateProgress(progress)
+                }.exceptionally { e ->
+                    setProgressMessage(e.message!!)
+                    println(e)
+                    this.buttonStart!!.isEnabled = true
+                    null
+                }.thenAccept {
+                    this.buttonStart!!.isEnabled = true
                 }
             } catch (e: Exception) {
                 this.progressBarMainMessage!!.text = "File paths are invalid."
             }
         }
+    }
+
+    /**
+     * Sets the progress message.
+     */
+    fun setProgressMessage(message: String) {
+        this.progressBarMainMessage!!.text = message
     }
 
     /**
