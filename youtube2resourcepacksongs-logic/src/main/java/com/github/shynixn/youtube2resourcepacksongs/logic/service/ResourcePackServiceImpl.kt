@@ -79,19 +79,18 @@ class ResourcePackServiceImpl(
 
         progressFunction.invoke(Progress(50, "Packing resource pack..."))
         generateResourcePackDirectoryStructure(videos)
-        zipResourcePackDirectoryStructure()
+        zipResourcePackDirectoryStructure(outputFile)
         progressFunction.invoke(Progress(100, "Finished generating resource pack."))
     }
 
     /**
      * Generates the zip file.
      */
-    private fun zipResourcePackDirectoryStructure() {
+    private fun zipResourcePackDirectoryStructure(outputFile: Path) {
         val resourcePackFolder = Paths.get("resourcepack")
-        val resourcePackZipFile = Paths.get("").resolve("resourcepack.zip")
-        Files.deleteIfExists(resourcePackZipFile)
+        Files.deleteIfExists(outputFile)
 
-        val zipFile = ZipFile(resourcePackZipFile.toFile())
+        val zipFile = ZipFile(outputFile.toFile())
         zipFile.addFolder(resourcePackFolder.resolve("assets").toFile())
         zipFile.addFile(resourcePackFolder.resolve("pack.mcmeta").toFile())
         zipFile.addFile(resourcePackFolder.resolve("pack.png").toFile())
