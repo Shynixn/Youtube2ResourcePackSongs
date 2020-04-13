@@ -109,16 +109,15 @@ class ResourcePackServiceImpl(
         }
 
         Files.createDirectories(resourcePackFolder)
-
-        Files.writeString(
-            resourcePackFolder.resolve("pack.mcmeta"),
+        FileUtils.write(
+            resourcePackFolder.resolve("pack.mcmeta").toFile(),
             "{\n" +
                     "\t\"pack\": {\n" +
                     "\t\t\"pack_format\": 3,\n" +
                     "\t\t\"description\": \"Generated sound resource pack.\"\n" +
                     "\t}\n" +
                     "}"
-        )
+        , "UTF-8")
         Thread.currentThread().contextClassLoader.getResourceAsStream("pack.png").use { input ->
             FileOutputStream(resourcePackFolder.resolve("pack.png").toFile()).use { output ->
                 IOUtils.copy(input, output)
@@ -167,6 +166,6 @@ class ResourcePackServiceImpl(
         }
 
         soundConfiguration.appendln("}")
-        Files.writeString(minecraftFolder.resolve("sounds.json"), soundConfiguration.toString())
+        FileUtils.write(minecraftFolder.resolve("sounds.json").toFile(), soundConfiguration.toString(), "UTF-8")
     }
 }
