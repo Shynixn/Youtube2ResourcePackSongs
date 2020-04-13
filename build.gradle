@@ -194,3 +194,13 @@ task jacocoRootReport(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
         })
     }
 }
+
+task generateJavaDocPages(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'javadoc'
+    outputDirectory = "docs/apidocs"
+    sourceDirs = files(new File(this.projectDir as File, '/youtube2resourcepacksongs-api/src/main/java')
+            , new File(this.projectDir as File, '/youtube2resourcepacksongs-api/src/main/java')
+            , new File(this.projectDir as File, '/youtube2resourcepacksongs-gui/src/main/java'),
+            new File(this.projectDir as File, '/youtube2resourcepacksongs-logic/src/main/java')
+    )
+}
