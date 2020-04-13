@@ -9,7 +9,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 /**
- * Created by Shynixn 2020.
+ * Integrationtest.
  * <p>
  * Version 1.5
  * <p>
