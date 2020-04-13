@@ -139,7 +139,7 @@ class FfmpegServiceImpl : FFmpegService {
         val architectureInfoFile = ffmpegFolder.resolve("os.dat")
 
         if (Files.exists(architectureInfoFile)) {
-            val architectureInfo = Files.readString(architectureInfoFile)
+            val architectureInfo = FileUtils.readFileToString(architectureInfoFile.toFile(), "UTF-8")
             val architecture = OSArchitectureTypes.values().first { e -> e.identififer == architectureInfo }
             return listOf(architecture)
         }
