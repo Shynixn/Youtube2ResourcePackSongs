@@ -1,9 +1,10 @@
-@file:Suppress("DuplicatedCode", "UNNECESSARY_SAFE_CALL")
+@file:Suppress("DuplicatedCode", "UNNECESSARY_SAFE_CALL", "CAST_NEVER_SUCCEEDS")
 
 package com.github.shynixn.youtube2resourcepacksongs.gui
 
 import com.github.shynixn.youtube2resourcepacksongs.api.Youtube2ResourcePackSongsApi
 import com.github.shynixn.youtube2resourcepacksongs.gui.entity.Configuration
+import com.github.shynixn.youtube2resourcepacksongs.gui.impl.Logger
 import com.github.shynixn.youtube2resourcepacksongs.gui.swing.GuiFrame
 import org.apache.commons.cli.*
 import java.io.FileNotFoundException
@@ -103,9 +104,8 @@ fun main(args: Array<String>) {
         ) { progress ->
             gui?.updateProgress(progress)
         }.exceptionally { e ->
-            gui?.setProgressMessage(e.message!!)
-            gui?.buttonStart!!.isEnabled = true
-            println(e)
+            gui?.setProgressMessage("Error. See latest.log for details.")
+            Logger.error(e)
             null
         }.thenAccept {
             gui?.buttonStart!!.isEnabled = true

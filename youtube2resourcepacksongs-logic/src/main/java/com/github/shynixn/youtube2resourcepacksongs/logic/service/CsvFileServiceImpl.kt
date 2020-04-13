@@ -1,9 +1,10 @@
 package com.github.shynixn.youtube2resourcepacksongs.logic.service
 
-import com.github.shynixn.youtube2resourcepacksongs.api.entity.Video
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.CsvFileService
+import com.github.shynixn.youtube2resourcepacksongs.logic.entity.Video
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.stream.Stream
 import kotlin.streams.toList
 
 /**
@@ -35,12 +36,12 @@ import kotlin.streams.toList
  */
 class CsvFileServiceImpl : CsvFileService {
     /**
-     * Gets a list of videos from the given path.
+     * Gets a lazy stream of videos from the given path.
      */
-    override fun parseFile(path: Path): List<Video> {
+    override fun parseFile(path: Path): Stream<Video> {
         return Files.lines(path).map { e ->
             val content = e.split(",")
             Video(content[1], content[0])
-        }.toList()
+        }
     }
 }

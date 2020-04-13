@@ -1,8 +1,11 @@
+@file:Suppress("CAST_NEVER_SUCCEEDS")
+
 package com.github.shynixn.youtube2resourcepacksongs.gui.swing
 
 import com.github.shynixn.youtube2resourcepacksongs.api.Youtube2ResourcePackSongsApi
 import com.github.shynixn.youtube2resourcepacksongs.api.entity.Progress
 import com.github.shynixn.youtube2resourcepacksongs.gui.entity.Configuration
+import com.github.shynixn.youtube2resourcepacksongs.gui.impl.Logger
 import java.awt.EventQueue
 import java.awt.Font
 import java.nio.file.Paths
@@ -231,9 +234,8 @@ internal class GuiFrame(
                 Youtube2ResourcePackSongsApi.convertAsync(inputPath.toFile(), outputPath.toFile()) { progress ->
                     updateProgress(progress)
                 }.exceptionally { e ->
-                    setProgressMessage(e.message!!)
-                    println(e)
-                    this.buttonStart!!.isEnabled = true
+                    setProgressMessage("Error. See latest.log for details.")
+                    Logger.error(e)
                     null
                 }.thenAccept {
                     this.buttonStart!!.isEnabled = true

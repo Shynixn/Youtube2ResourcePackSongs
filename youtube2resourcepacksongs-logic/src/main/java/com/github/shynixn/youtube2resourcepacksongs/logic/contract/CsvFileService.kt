@@ -1,9 +1,8 @@
 package com.github.shynixn.youtube2resourcepacksongs.logic.contract
 
-import com.github.shynixn.youtube2resourcepacksongs.api.entity.Video
-import java.nio.file.Files
+import com.github.shynixn.youtube2resourcepacksongs.logic.entity.Video
 import java.nio.file.Path
-import kotlin.streams.toList
+import java.util.stream.Stream
 
 /**
  * Created by Shynixn 2020.
@@ -34,7 +33,7 @@ import kotlin.streams.toList
  */
 interface CsvFileService {
     /**
-     * Gets a list of videos from the given path.
+     * Gets a lazy stream of videos from the given path.
      */
-    fun parseFile(path: Path): List<Video>
+    fun parseFile(path: Path): Stream<Video>
 }

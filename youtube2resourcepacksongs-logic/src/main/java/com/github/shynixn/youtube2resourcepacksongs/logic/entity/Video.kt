@@ -1,4 +1,4 @@
-package com.github.shynixn.youtube2resourcepacksongs.api.entity
+package com.github.shynixn.youtube2resourcepacksongs.logic.entity
 
 /**
  * Created by Shynixn 2020.

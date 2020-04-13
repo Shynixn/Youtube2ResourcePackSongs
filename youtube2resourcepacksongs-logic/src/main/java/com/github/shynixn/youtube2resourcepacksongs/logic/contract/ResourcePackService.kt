@@ -1,6 +1,5 @@
 package com.github.shynixn.youtube2resourcepacksongs.logic.contract
 
-import com.github.shynixn.youtube2resourcepacksongs.api.entity.Video
 import java.nio.file.Path
 
 /**
@@ -34,5 +33,5 @@ interface ResourcePackService {
     /**
      * Generates a resource pack.
      */
-    fun generateResourcePack(videos: Collection<Video>, outputFile: Path, progressFunction : Any)
+    fun generateResourcePack(inputFile: Path, outputFile: Path, progressF: Any)
 }

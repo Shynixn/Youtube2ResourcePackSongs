@@ -1,8 +1,10 @@
-package com.github.shynixn.youtube2resourcepacksongs.logic.contract
+package com.github.shynixn.youtube2resourcepacksongs.gui.impl
 
-import com.github.shynixn.youtube2resourcepacksongs.api.entity.Progress
-import com.github.shynixn.youtube2resourcepacksongs.logic.entity.Video
-import java.nio.file.Path
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.logging.FileHandler
+import java.util.logging.Level
+import java.util.logging.SimpleFormatter
 
 /**
  * Created by Shynixn 2020.
@@ -31,9 +33,35 @@ import java.nio.file.Path
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-interface YoutubeVideoDownloadService {
+object Logger {
+    private val logger = java.util.logging.Logger.getLogger("Youtube2ResourcePack")
+
     /**
-     * Downloads the given video.
+     * Init logger.
      */
-    fun download(video: Video, targetFolder: Path, progressFunction: (Progress) -> Unit)
+    init {
+        try {
+            Files.deleteIfExists(Paths.get("latest.log"))
+            val fh = FileHandler("latest.log")
+            logger.addHandler(fh)
+            val formatter = SimpleFormatter()
+            fh.formatter = formatter
+        } catch (e: Exception) {
+            println("Cannot initialize logger.")
+        }
+    }
+
+    /**
+     * Log throwable.
+     */
+    fun error(e: Throwable) {
+        logger.log(Level.SEVERE, "Error", e)
+    }
+
+    /**
+     * Log info.
+     */
+    fun info(message: String) {
+        logger.log(Level.INFO, message);
+    }
 }

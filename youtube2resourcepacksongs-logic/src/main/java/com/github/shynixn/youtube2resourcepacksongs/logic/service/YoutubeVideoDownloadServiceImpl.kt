@@ -3,8 +3,8 @@ package com.github.shynixn.youtube2resourcepacksongs.logic.service
 import com.github.kiulian.downloader.OnYoutubeDownloadListener
 import com.github.kiulian.downloader.YoutubeDownloader
 import com.github.shynixn.youtube2resourcepacksongs.api.entity.Progress
-import com.github.shynixn.youtube2resourcepacksongs.api.entity.Video
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.YoutubeVideoDownloadService
+import com.github.shynixn.youtube2resourcepacksongs.logic.entity.Video
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.lang.StringBuilder
@@ -58,9 +58,10 @@ class YoutubeVideoDownloadServiceImpl : YoutubeVideoDownloadService {
         Files.deleteIfExists(downloadFile)
 
         val youtubeId = getYoutubeId(video.videoUrl)
-        val v = YoutubeDownloader()
-        val ytVideo = v.getVideo(youtubeId)
+        val youtubeDownloader = YoutubeDownloader()
+        val ytVideo = youtubeDownloader.getVideo(youtubeId)
         var hasFinished = false
+
         ytVideo.downloadAsync(ytVideo.audioFormats()[0], downloadFolder.toFile(), object : OnYoutubeDownloadListener {
             override fun onDownloading(progress: Int) {
                 progressFunction.invoke(Progress(progress, "Downloading '" + name + "' from " + video.videoUrl + "..."))
@@ -91,7 +92,7 @@ class YoutubeVideoDownloadServiceImpl : YoutubeVideoDownloadService {
         val builder = StringBuilder()
         var index = url.indexOf("v=") + 2
         while (index < url.length) {
-            val character = url.get(index)
+            val character = url[index]
 
             if (character == '&') {
                 break

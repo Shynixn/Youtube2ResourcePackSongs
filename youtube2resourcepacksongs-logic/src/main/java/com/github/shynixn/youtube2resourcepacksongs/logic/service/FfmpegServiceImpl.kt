@@ -227,7 +227,7 @@ class FfmpegServiceImpl : FFmpegService {
         override fun write(b: Int) {
             super.write(b)
             currentWrittenBytes++
-            progress.invoke((currentWrittenBytes.toDouble() / fileSize.toDouble()))
+            updateProgress()
         }
 
         /**
@@ -240,7 +240,7 @@ class FfmpegServiceImpl : FFmpegService {
         override fun write(b: ByteArray) {
             super.write(b)
             currentWrittenBytes += b.size
-            progress.invoke((currentWrittenBytes.toDouble() / fileSize.toDouble()))
+            updateProgress()
         }
 
         /**
@@ -255,7 +255,13 @@ class FfmpegServiceImpl : FFmpegService {
         override fun write(b: ByteArray, off: Int, len: Int) {
             super.write(b, off, len)
             currentWrittenBytes += len
+            updateProgress()
+        }
 
+        /**
+         * Updates the progress observers.
+         */
+        private fun updateProgress() {
             if (currentWrittenBytes - lastTimeWritten > 100000) {
                 lastTimeWritten = currentWrittenBytes
                 progress.invoke((currentWrittenBytes.toDouble() / fileSize.toDouble()))

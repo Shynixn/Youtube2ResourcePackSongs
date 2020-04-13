@@ -3,11 +3,10 @@
 package com.github.shynixn.youtube2resourcepacksongs.logic.service
 
 import com.github.shynixn.youtube2resourcepacksongs.api.entity.Progress
-import com.github.shynixn.youtube2resourcepacksongs.api.entity.Video
+import com.github.shynixn.youtube2resourcepacksongs.logic.contract.CsvFileService
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.FFmpegService
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.ResourcePackService
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.YoutubeVideoDownloadService
-import org.apache.commons.io.FileUtils
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -41,28 +40,35 @@ import java.nio.file.Paths
  */
 class ResourcePackServiceImpl(
     private val youtubeVideoDownloadService: YoutubeVideoDownloadService = YoutubeVideoDownloadServiceImpl(),
-    private val fFmpegService: FFmpegService = FfmpegServiceImpl()
+    private val fFmpegService: FFmpegService = FfmpegServiceImpl(),
+    private val csvFileService: CsvFileService = CsvFileServiceImpl()
 ) :
     ResourcePackService {
     /**
      * Generates a resource pack.
      */
-    override fun generateResourcePack(videos: Collection<Video>, outputFile: Path, progressFunction: Any) {
+    override fun generateResourcePack(inputFile: Path, outputFile: Path, progressF: Any) {
+        val progressFunction = progressF as ((Progress) -> Unit)
+        progressFunction.invoke(Progress(0, "Generating resource pack..."))
+
         val songsFolder = Paths.get("songs")
-        val progressF = progressFunction as ((Progress) -> Unit)
 
         if (!Files.exists(songsFolder)) {
             Files.createDirectories(songsFolder)
         }
 
+        val videos = csvFileService.parseFile(inputFile)
+
         for (video in videos) {
-            youtubeVideoDownloadService.download(video, songsFolder, progressF)
+            youtubeVideoDownloadService.download(video, songsFolder, progressFunction)
         }
 
         for (file in songsFolder.toFile().listFiles()!!.filter { e -> e.name.endsWith(".mp4") }) {
             val oggFile = file.toPath().parent.resolve(file.nameWithoutExtension + ".ogg")
             Files.deleteIfExists(oggFile)
-            fFmpegService.convertToOgg(file.toPath(), progressF)
+            fFmpegService.convertToOgg(file.toPath(), progressFunction)
         }
+
+        progressFunction.invoke(Progress(0, "Finished generating resource pack."))
     }
 }
