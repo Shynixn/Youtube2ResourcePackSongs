@@ -41,6 +41,11 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ,custom/againthesamesong
 * **1.13 and above:** Execute the command ``/playsound minecraft:<sound> master <player>``
 * **1.8 to 1.12.2:** Execute the command ``/playsound <sound> <player>``
 
+**Sample:**
+```
+/playsound minecraft:custom.mysong master Shynixn
+```
+
 ## Contributing
 
 * Clone the repository to your local environment
