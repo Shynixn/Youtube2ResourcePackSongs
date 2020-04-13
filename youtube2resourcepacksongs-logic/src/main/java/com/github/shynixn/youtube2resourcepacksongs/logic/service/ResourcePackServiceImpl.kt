@@ -7,9 +7,15 @@ import com.github.shynixn.youtube2resourcepacksongs.logic.contract.CsvFileServic
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.FFmpegService
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.ResourcePackService
 import com.github.shynixn.youtube2resourcepacksongs.logic.contract.YoutubeVideoDownloadService
+import com.github.shynixn.youtube2resourcepacksongs.logic.entity.Video
+import net.lingala.zip4j.ZipFile
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
+import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.streams.toList
 
 /**
  * Created by Shynixn 2020.
@@ -57,7 +63,7 @@ class ResourcePackServiceImpl(
             Files.createDirectories(songsFolder)
         }
 
-        val videos = csvFileService.parseFile(inputFile)
+        val videos = csvFileService.parseFile(inputFile).toList()
 
         for (video in videos) {
             youtubeVideoDownloadService.download(video, songsFolder, progressFunction)
@@ -69,6 +75,97 @@ class ResourcePackServiceImpl(
             fFmpegService.convertToOgg(file.toPath(), progressFunction)
         }
 
-        progressFunction.invoke(Progress(0, "Finished generating resource pack."))
+        progressFunction.invoke(Progress(50, "Packing resource pack..."))
+        generateResourcePackDirectoryStructure(videos)
+        zipResourcePackDirectoryStructure()
+        progressFunction.invoke(Progress(100, "Finished generating resource pack."))
+    }
+
+    /**
+     * Generates the zip file.
+     */
+    private fun zipResourcePackDirectoryStructure() {
+        val resourcePackFolder = Paths.get("resourcepack")
+        val resourcePackZipFile = Paths.get("").resolve("resourcepack.zip")
+        Files.deleteIfExists(resourcePackZipFile)
+
+        val zipFile = ZipFile(resourcePackZipFile.toFile())
+        zipFile.addFolder(resourcePackFolder.resolve("assets").toFile())
+        zipFile.addFile(resourcePackFolder.resolve("pack.mcmeta").toFile())
+        zipFile.addFile(resourcePackFolder.resolve("pack.png").toFile())
+
+        FileUtils.deleteDirectory(resourcePackFolder.toFile())
+    }
+
+    /**
+     * Generates the structure of the resource pack.
+     */
+    private fun generateResourcePackDirectoryStructure(videos: List<Video>) {
+        val resourcePackFolder = Paths.get("resourcepack")
+
+        if (Files.exists(resourcePackFolder)) {
+            FileUtils.deleteDirectory(resourcePackFolder.toFile())
+        }
+
+        Files.createDirectories(resourcePackFolder)
+
+        Files.writeString(
+            resourcePackFolder.resolve("pack.mcmeta"),
+            "{\n" +
+                    "\t\"pack\": {\n" +
+                    "\t\t\"pack_format\": 3,\n" +
+                    "\t\t\"description\": \"Generated sound resource pack.\"\n" +
+                    "\t}\n" +
+                    "}"
+        )
+        Thread.currentThread().contextClassLoader.getResourceAsStream("pack.png").use { input ->
+            FileOutputStream(resourcePackFolder.resolve("pack.png").toFile()).use { output ->
+                IOUtils.copy(input, output)
+            }
+        }
+
+        val assetsFolder = resourcePackFolder.resolve("assets")
+        Files.createDirectories(assetsFolder)
+        val minecraftFolder = assetsFolder.resolve("minecraft")
+        Files.createDirectories(minecraftFolder)
+        val soundsFolder = minecraftFolder.resolve("sounds")
+        Files.createDirectories(minecraftFolder)
+
+        val soundConfiguration = StringBuilder()
+        soundConfiguration.appendln("{")
+
+        var isFirstLine = true
+
+        for (video in videos) {
+            val structures = video.videoPathInResourcePack.split("/").toMutableList()
+            val musicName = video.videoPathInResourcePack.split("/").last()
+            structures.removeAt(structures.size - 1)
+            val oggFile = Paths.get("songs").resolve("$musicName.ogg")
+            FileUtils.moveFileToDirectory(
+                oggFile.toFile(),
+                soundsFolder.resolve(structures.joinToString("")).toFile(),
+                true
+            )
+
+            if (!isFirstLine) {
+                soundConfiguration.append(",")
+                soundConfiguration.appendln()
+            }
+
+            isFirstLine = false
+
+            soundConfiguration.appendln("   \"${video.videoPathInResourcePack.replace("/", ".")}\": {")
+            soundConfiguration.appendln("   \"category\": \"hostile\",")
+            soundConfiguration.appendln("   \"sounds\": [")
+            soundConfiguration.appendln("       {")
+            soundConfiguration.appendln("           \"name\": \"${video.videoPathInResourcePack}\",")
+            soundConfiguration.appendln("           \"stream\": true")
+            soundConfiguration.appendln("       }")
+            soundConfiguration.appendln("    ]")
+            soundConfiguration.appendln("  }")
+        }
+
+        soundConfiguration.appendln("}")
+        Files.writeString(minecraftFolder.resolve("sounds.json"), soundConfiguration.toString())
     }
 }
