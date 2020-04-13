@@ -46,8 +46,15 @@ class YoutubeVideoDownloadServiceImpl : YoutubeVideoDownloadService {
      */
     override fun download(video: Video, targetFolder: Path, progressFunction: (Progress) -> Unit) {
         val name = video.videoPathInResourcePack.split("/").last()
-        val currentFolder = Paths.get("")
-        val downloadFolder = currentFolder.resolve("download-" + UUID.randomUUID().toString().split("-").first())
+        val rootDownloadFolder = Paths.get("download")
+
+        if (Files.exists(rootDownloadFolder)) {
+            FileUtils.deleteDirectory(rootDownloadFolder.toFile())
+        }
+
+        Files.createDirectories(rootDownloadFolder)
+
+        val downloadFolder = rootDownloadFolder.resolve("download-" + UUID.randomUUID().toString().split("-").first())
 
         if (Files.exists(downloadFolder)) {
             FileUtils.deleteDirectory(downloadFolder.toFile())

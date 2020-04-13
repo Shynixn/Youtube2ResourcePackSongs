@@ -59,9 +59,11 @@ class ResourcePackServiceImpl(
 
         val songsFolder = Paths.get("songs")
 
-        if (!Files.exists(songsFolder)) {
-            Files.createDirectories(songsFolder)
+        if (Files.exists(songsFolder)) {
+            FileUtils.deleteDirectory(songsFolder.toFile())
         }
+
+        Files.createDirectories(songsFolder)
 
         val videos = csvFileService.parseFile(inputFile).toList()
 
@@ -155,7 +157,7 @@ class ResourcePackServiceImpl(
             isFirstLine = false
 
             soundConfiguration.appendln("   \"${video.videoPathInResourcePack.replace("/", ".")}\": {")
-            soundConfiguration.appendln("   \"category\": \"hostile\",")
+            soundConfiguration.appendln("   \"category\": \"master\",")
             soundConfiguration.appendln("   \"sounds\": [")
             soundConfiguration.appendln("       {")
             soundConfiguration.appendln("           \"name\": \"${video.videoPathInResourcePack}\",")

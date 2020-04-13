@@ -103,6 +103,7 @@ fun main(args: Array<String>) {
             configuration.outputFilePath.toFile()
         ) { progress ->
             gui?.updateProgress(progress)
+            Logger.info(progress.message + ": " + progress.value + "%")
         }.exceptionally { e ->
             gui?.setProgressMessage("Error. See latest.log for details.")
             Logger.error(e)

@@ -41,7 +41,7 @@ class CsvFileServiceImpl : CsvFileService {
     override fun parseFile(path: Path): Stream<Video> {
         return Files.lines(path).map { e ->
             val content = e.split(",")
-            Video(content[1], content[0])
+            Video(content[1].toLowerCase(), content[0])
         }
     }
 }

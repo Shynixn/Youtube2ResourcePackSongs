@@ -34,7 +34,7 @@ import java.util.logging.SimpleFormatter
  * SOFTWARE.
  */
 object Logger {
-    private val logger = java.util.logging.Logger.getLogger("Youtube2ResourcePack")
+    private val errorLogger = java.util.logging.Logger.getLogger("Youtube2ResourcePack")
 
     /**
      * Init logger.
@@ -42,10 +42,9 @@ object Logger {
     init {
         try {
             Files.deleteIfExists(Paths.get("latest.log"))
-            val fh = FileHandler("latest.log")
-            logger.addHandler(fh)
-            val formatter = SimpleFormatter()
-            fh.formatter = formatter
+            val fhLatest = FileHandler("latest.log")
+            errorLogger.addHandler(fhLatest)
+            fhLatest.formatter = SimpleFormatter()
         } catch (e: Exception) {
             println("Cannot initialize logger.")
         }
@@ -55,13 +54,13 @@ object Logger {
      * Log throwable.
      */
     fun error(e: Throwable) {
-        logger.log(Level.SEVERE, "Error", e)
+        errorLogger.log(Level.SEVERE, "Error", e)
     }
 
     /**
      * Log info.
      */
     fun info(message: String) {
-        logger.log(Level.INFO, message);
+        errorLogger.log(Level.INFO, message);
     }
 }

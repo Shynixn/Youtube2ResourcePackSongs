@@ -233,6 +233,7 @@ internal class GuiFrame(
                 val outputPath = Paths.get(this.textFieldOutputResourcePack!!.text)
                 Youtube2ResourcePackSongsApi.convertAsync(inputPath.toFile(), outputPath.toFile()) { progress ->
                     updateProgress(progress)
+                    Logger.info(progress.message + ": " + progress.value + "%")
                 }.exceptionally { e ->
                     setProgressMessage("Error. See latest.log for details.")
                     Logger.error(e)
